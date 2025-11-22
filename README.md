@@ -1,7 +1,7 @@
 # Hydra32
-Hydra32 | A Wi-Fi Penetration firmware for ESP32
+Hydra32 | A Wi-Fi Penetration firmware for ESP32 DEvkit v1-v?
 
-# 🐍 Hydra32 — ESP32 Wi-Fi Penetration Tool
+# Hydra32 — ESP32 Wi-Fi Penetration Tool
 ![Hydra32 Banner](images/hydra.webp)
 
 > ⚠️ **FOR EDUCATIONAL AND AUTHORIZED TESTING PURPOSES ONLY** ⚠️  
@@ -11,7 +11,7 @@ Hydra32 | A Wi-Fi Penetration firmware for ESP32
 
 
 
-## 📜 Legal & Ethical Disclaimer
+## Legal & Ethical Disclaimer
 ```
 This software is intended ONLY for: 
 • Penetration testing on networks you own.
@@ -39,7 +39,7 @@ By using this software, you accept full liability for your actions.
 ```
 
 
-## 🔒 Why Source Code Is Partially Hidden
+## Why Source Code Is Partially Hidden
 
 The **core packet injection logic** — responsible for crafting and sending deauthentication/beacon frames — is **NOT included** in this repository.
 ```
@@ -70,14 +70,14 @@ If you need the **full version** for **legitimate, legal research** — you must
 
 
 
-## 🖥 Supported Hardware
+## Supported Hardware
 
 - **ESP32 Devkit V1** *(recommended)*
 - Any ESP32 board with sufficient flash & Wi-Fi capability
 
 ---
 
-## 📸 Device Photo
+## Device Photo
 
 ![ESP32 Devkit V1](images/esp32v1.jpeg)
 
@@ -87,18 +87,18 @@ If you need the **full version** for **legitimate, legal research** — you must
 
 ## ⚙️ Installation
 
-### 1️⃣ Requirements
+### Requirements
 - ESP32 Flash Download Tool
 - USB cable for flashing
 - ESP32 board *(Devkit V1 recommended)*
 
-### 2️⃣ Download Firmware
+### Download Firmware
 Go to Releases and download:
 - `bootloader.bin`
 - `partitions-table.bin`
 - `hydra32.bin`
   
-### 3️⃣ Flashing Instructions
+### Flashing Instructions
 
 **Using ESP32 Flash Download Tool:**
 bootloader.bin → Offset: 0x1000
