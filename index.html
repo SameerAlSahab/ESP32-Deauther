@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydra32 | ESP32 Wi-Fi Security Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7e22ce;
+            --light: #ffffff;
+            --light-gray: #f8fafc;
+            --medium-gray: #e2e8f0;
+            --dark-gray: #64748b;
+            --text: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: var(--light-gray);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: var(--light);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            max-width: 650px;
+            z-index: 2;
+            padding: 2rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            color: var(--dark-gray);
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(37, 99, 235, 0.05);
+            transform: translateY(-3px);
+        }
+        
+        .device-showcase {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 500px;
+            height: 400px;
+            background: url('https://raw.githubusercontent.com/SpacehuhnTech/esp8266_deauther/master/docs/device_v3.jpg') center/contain no-repeat;
+            z-index: 1;
+            opacity: 0.95;
+        }
+        
+        /* Section Styling */
+        section {
+            padding: 100px 0;
+            background: var(--light);
+        }
+        
+        .alternate {
+            background: var(--light-gray);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .section-subtitle {
+            color: var(--dark-gray);
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 20px auto 0;
+        }
+        
+        /* Card Styling */
+        .card {
+            background: var(--light);
+            border-radius: 16px;
+            padding: 30px;
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--medium-gray);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon i {
+            font-size: 28px;
+            color: var(--primary);
+        }
+        
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        
+        .card p {
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+        }
+        
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        /* Legal Section */
+        .legal-section {
+            background: #fff8f8;
+            border-radius: 16px;
+            padding: 40px;
+            margin: 50px 0;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .legal-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Installation Steps */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .step {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            min-width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h4 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid var(--medium-gray);
+            font-size: 0.95rem;
+        }
+        
+        .code-block code {
+            color: var(--text);
+            line-height: 1.8;
+        }
+        
+        .code-keyword {
+            color: #2563eb;
+        }
+        
+        .code-comment {
+            color: #94a3b8;
+        }
+        
+        /* Support Section */
+        .support-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+        .support-card {
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            text-align: center;
+            padding: 30px;
+            border-radius: 16px;
+            background: var(--light);
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .support-card:hover {
+            background: rgba(37, 99, 235, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+        
+        .support-card i {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        /* Credits */
+        .credits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .credit-card {
+            padding: 20px;
+            background: var(--light);
+            border-radius: 12px;
+            border: 1px solid var(--medium-gray);
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .credit-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+        
+        .credit-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Download Section */
+        .download-section {
+            text-align: center;
+            padding: 80px 0;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+            border-radius: 20px;
+            margin: 80px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--medium-gray);
+        }
+        
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+        }
+        
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+        }
+        
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
+        }
+        
+        .nav-btn i {
+            font-size: 1.2rem;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--text);
+            padding: 40px 0 20px;
+            color: var(--light-gray);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--light);
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .device-showcase {
+                position: relative;
+                width: 100%;
+                height: 300px;
+                right: 0;
+                top: 0;
+                transform: none;
+                margin-top: 40px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                text-align: center;
+            }
+            
+            .hero-content {
+                margin: 0 auto;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                    <span>Hydra32</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#about">About</a>
+                    <a href="#features">Features</a>
+                    <a href="#laws">Legal</a>
+                    <a href="#install">Installation</a>
+                    <a href="#support">Support</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>ESP32 Wi-Fi Security Testing Tool</h1>
+                <p>Hydra32 is an open-source project that transforms the ESP32 into a powerful Wi-Fi security testing device for educational purposes and authorized penetration testing.</p>
+                
+                <div class="hero-buttons">
+                    <a href="#install" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Get Started
+                    </a>
+                    <a href="#laws" class="btn btn-outline">
+                        <i class="fas fa-gavel"></i> Legal Guidelines
+                    </a>
+                </div>
+            </div>
+            <div class="device-showcase"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About Hydra32</h2>
+                <p class="section-subtitle">Understanding the purpose and capabilities of this security tool</p>
+            </div>
+            
+            <div class="card">
+                <p>Hydra32 is an open-source project developed by SameerAlSahab that transforms the ESP32 into a versatile Wi-Fi penetration testing device. Built for security professionals and ethical hackers, Hydra32 provides a suite of tools to test network vulnerabilities and enhance security awareness.</p>
+                <br>
+                <p>The project emphasizes responsible use and education, with built-in safeguards to prevent misuse. Hydra32 is designed for:</p>
+                <ul style="padding-left: 20px; margin-top: 15px;">
+                    <li>Security researchers testing their own networks</li>
+                    <li>Educational demonstrations of Wi-Fi vulnerabilities</li>
+                    <li>Developing and testing network security protocols</li>
+                    <li>Understanding wireless security mechanisms</li>
+                </ul>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn" disabled>
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-btn" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">
+                    Next: Features <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="alternate">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Key Features</h2>
+                <p class="section-subtitle">Powerful capabilities packed into an affordable ESP32 device</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h3>Wi-Fi Deauthentication</h3>
+                    <p>Send deauthentication frames to disconnect devices from access points for security testing.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <h3>Beacon Spam</h3>
+                    <p>Flood the area with fake access points to test network visibility and detection systems.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Web Interface</h3>
+                    <p>Control Hydra32 through an intuitive web-based interface accessible from any device.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Security Protocols</h3>
+                    <p>Test various security protocols and their vulnerabilities in a controlled environment.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <h3>ESP32 Compatibility</h3>
+                    <p>Designed specifically for ESP32 Devkit V1 and compatible development boards.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Timed Operations</h3>
+                    <p>Schedule attacks to run for specific durations with automatic shutdown.</p>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-arrow-left"></i> Previous: About
+                </button>
+                <button class="nav-btn" onclick="document.getElementById('laws').scrollIntoView({behavior: 'smooth'})">
+                    Next: Legal <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Legal Section -->
+    <section id="laws">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Legal & Ethical Use</h2>
+                <p class="section-subtitle">Understanding the boundaries of responsible security testing</p>
+            </div>
+            
+            <div class="legal-section">
+                <h3><i class="fas fa-exclamation-triangle"></i> Important Legal Disclaimer</h3>
+                <p>Hydra32 is developed strictly for educational purposes and authorized security testing. Unauthorized use against networks or devices you do not own is illegal in most jurisdictions.</p>
+                <br>
+                <p><strong>⚠️ Always obtain explicit written consent before testing any network that is not your own.</strong></p>
+                <br>
+                <p>Key legal frameworks to be aware of:</p>
+                <ul style="padding-left: 20px; margin-top: 15px;">
+                    <li><strong>Computer Fraud and Abuse Act (CFAA)</strong> - United States</li>
+                    <li><strong>Computer Misuse Act</strong> - United Kingdom</li>
+                    <li><strong>EU Cybercrime Directive</strong> - European Union</li>
+                    <li><strong>Telecommunications Regulations</strong> - Various countries</li>
+                </ul>
+                <br>
+                <p>Core packet injection logic is intentionally omitted from public repositories to:</p>
+                <ul style="padding-left: 20px;">
+                    <li>Prevent misuse by unskilled individuals</li>
+                    <li>Comply with security research ethics</li>
+                    <li>Avoid distributing potentially harmful code</li>
+                    <li>Encourage genuine learning of network protocols</li>
+                </ul>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-arrow-left"></i> Previous: Features
+                </button>
+                <button class="nav-btn" onclick="document.getElementById('install').scrollIntoView({behavior: 'smooth'})">
+                    Next: Installation <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="install" class="alternate">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Installation Guide</h2>
+                <p class="section-subtitle">Get Hydra32 up and running on your ESP32 device</p>
+            </div>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Hardware Requirements</h4>
+                        <p>You'll need an ESP32 Devkit V1 (or compatible board) and a USB cable for flashing.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Download Firmware</h4>
+                        <p>Get the latest firmware binaries from the GitHub releases page:</p>
+                        <a href="https://github.com/SameerAlSahab/Hydra32/releases" class="btn btn-primary" style="margin-top: 10px;">
+                            <i class="fab fa-github"></i> Download Releases
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Flash Firmware</h4>
+                        <p>Use ESP32 Flash Download Tool or esptool.py to flash the firmware:</p>
+                        <div class="code-block">
+                            <code>
+                                <span class="code-comment"># Using esptool.py</span><br>
+                                esptool.py -p /dev/ttyS5 -b 115200 write_flash \<br>
+                                &nbsp;&nbsp;--flash_mode dio --flash_freq 40m --flash_size detect \<br>
+                                &nbsp;&nbsp;0x8000 partitions-table.bin \<br>
+                                &nbsp;&nbsp;0x1000 bootloader.bin \<br>
+                                &nbsp;&nbsp;0x10000 hydra32.bin
+                            </code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Connect & Access</h4>
+                        <p>After flashing, connect to the Hydra32 access point and navigate to the web interface at 192.168.4.1.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="document.getElementById('laws').scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-arrow-left"></i> Previous: Legal
+                </button>
+                <button class="nav-btn" onclick="document.getElementById('support').scrollIntoView({behavior: 'smooth'})">
+                    Next: Support <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section id="support">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Support the Project</h2>
+                <p class="section-subtitle">Help Hydra32 grow and improve - no money required!</p>
+            </div>
+            
+            <div class="support-options">
+                <div class="support-card">
+                    <i class="fab fa-github"></i>
+                    <h3>Star on GitHub</h3>
+                    <p>Show your support by starring the repository to increase visibility.</p>
+                    <a href="#" class="btn btn-outline" style="margin-top: 15px; display: inline-block;">
+                        <i class="fas fa-star"></i> Star Project
+                    </a>
+                </div>
+                
+                <div class="support-card">
+                    <i class="fas fa-bug"></i>
+                    <h3>Report Issues</h3>
+                    <p>Help improve Hydra32 by reporting bugs and issues you encounter.</p>
+                    <a href="#" class="btn btn-outline" style="margin-top: 15px; display: inline-block;">
+                        <i class="fas fa-bug"></i> Report Issue
+                    </a>
+                </div>
+                
+                <div class="support-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <h3>Suggest Features</h3>
+                    <p>Contribute ideas for new features and improvements.</p>
+                    <a href="#" class="btn btn-outline" style="margin-top: 15px; display: inline-block;">
+                        <i class="fas fa-comment"></i> Suggest Feature
+                    </a>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
+                <strong>Note:</strong> I do not accept monetary donations. Your contributions through code, testing, and community support are what keep this project alive and evolving.
+            </p>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="document.getElementById('install').scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-arrow-left"></i> Previous: Installation
+                </button>
+                <button class="nav-btn" onclick="document.getElementById('credits').scrollIntoView({behavior: 'smooth'})">
+                    Next: Credits <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Credits Section -->
+    <section id="credits" class="alternate">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Credits & Inspiration</h2>
+                <p class="section-subtitle">Standing on the shoulders of giants</p>
+            </div>
+            
+            <div class="credits-grid">
+                <div class="credit-card">
+                    <h3>SpacehuhnTech</h3>
+                    <p>ESP8266 Deauther project that inspired the initial concept</p>
+                    <a href="https://github.com/SpacehuhnTech/esp8266_deauther" target="_blank">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                </div>
+                
+                <div class="credit-card">
+                    <h3>Risinek</h3>
+                    <p>ESP32 Wi-Fi Penetration Tool that provided foundational code</p>
+                    <a href="https://github.com/risinek/esp32-wifi-penetration-tool" target="_blank">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                </div>
+                
+                <div class="credit-card">
+                    <h3>Jeija</h3>
+                    <p>ESP32Free80211 library that enables raw packet handling</p>
+                    <a href="https://github.com/Jeija/esp32free80211" target="_blank">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                </div>
+            </div>
+            
+            <div class="download-section">
+                <h2 style="font-size: 2.2rem; margin-bottom: 20px;">Ready to Get Started?</h2>
+                <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto 30px;">Download the latest release of Hydra32 and start testing your network security today</p>
+                <a href="https://github.com/SameerAlSahab/Hydra32/releases" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px;">
+                    <i class="fas fa-download"></i> Download Now
+                </a>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="document.getElementById('support').scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-arrow-left"></i> Previous: Support
+                </button>
+                <button class="nav-btn" disabled>
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Hydra32</h3>
+                    <p>Advanced Wi-Fi penetration tool for the ESP32 platform, designed for security research and education.</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-book"></i> Documentation</a></li>
+                        <li><a href="https://github.com/SameerAlSahab/Hydra32"><i class="fab fa-github"></i> GitHub Repository</a></li>
+                        <li><a href="#"><i class="fas fa-exclamation-triangle"></i> Responsible Use Guide</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-balance-scale"></i> Terms of Use</a></li>
+                        <li><a href="#"><i class="fas fa-user-shield"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-gavel"></i> Legal Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2025 SameerAlSahab. All rights reserved. Hydra32 is for educational and authorized testing purposes only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Sticky header effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            header.classList.toggle('sticky', window.scrollY > 0);
+        });
+        
+        // Update navigation button states
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                // Add active class to clicked button
+                this.classList.add('active');
+            });
+        });
+        
+        // Simple animation for cards on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = "1";
+                    entry.target.style.transform = "translateY(0)";
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.card, .support-card, .credit-card').forEach(card => {
+            card.style.opacity = "0";
+            card.style.transform = "translateY(20px)";
+            card.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
