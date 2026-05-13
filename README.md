@@ -1,18 +1,25 @@
 
-> ⚠️ **FOR EDUCATIONAL AND AUTHORIZED TESTING PURPOSES ONLY** ⚠️  
-> Unauthorized use of this tool **may violate laws** in your country.  
-> You alone are responsible for any misuse.
 
-# ProjectHydraOS
+# Hydra-ESP
 
-![Hydra32 Banner](images/hydra.webp)
+<div align="center">
+<img src="resources/hydra_logo.png" alt="Hydra-ESP Logo" width="350"/>
+</div>
+
+[![Stars](https://img.shields.io/github/stars/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=yellow)](https://github.com/SameerAlSahab/ESP32-Deauther/stargazers)
+[![Forks](https://img.shields.io/github/forks/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=orange)](https://github.com/SameerAlSahab/ESP32-Deauther/network/members)
+[![Issues](https://img.shields.io/github/issues/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=red)](https://github.com/SameerAlSahab/ESP32-Deauther/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=purple)](https://github.com/SameerAlSahab/ESP32-Deauther/pulls)
+[![License](https://img.shields.io/github/license/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=blue)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=brightgreen)](https://github.com/SameerAlSahab/ESP32-Deauther/commits)
+[![Repo Size](https://img.shields.io/github/repo-size/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=informational)](https://github.com/SameerAlSahab/ESP32-Deauther)
+[![Contributors](https://img.shields.io/github/contributors/SameerAlSahab/ESP32-Deauther?style=for-the-badge&color=pink)](https://github.com/SameerAlSahab/ESP32-Deauther/graphs/contributors)
+
 A wireless security research firmware for the ESP32 microcontroller. Built on top of [risinek's](https://github.com/risinek/esp32-wifi-penetration-tool) original ESP32 Wi-Fi penetration tool foundation, ProjectHydraOS extends the original with a redesigned web interface, multi-target deauthentication, BLE attack capabilities, a deauth attack detector, optional OLED display support, and several additional attack modules.
-
-Developed by Sameer Al Sahab, CSE student at East West University, Bangladesh.
 
 ---
 
-## Hardware Requirements
+## Hardware
 
 **Required**
 
@@ -31,13 +38,15 @@ The ESP32 runs its own Wi-Fi access point (management AP) on boot. You connect a
 The management AP is temporarily disabled during some attacks that require exclusive use of the radio (Deauth, Evil Twin, Super Clone). For those attacks, you lose the web interface connection while the attack runs. A configurable timeout brings the device back automatically. Without a timeout set, a power cycle is required to stop the attack and restore access.
 
 ---
-
-## Source Code
-
-The full C/C++ firmware source is not publicly released in this repository. The web interface (HTML, CSS, JavaScript) is included. The firmware binary is provided for flashing.
-
-This decision reflects the sensitivity of the capabilities involved. The web interface source is open so the communication protocol and UI logic are fully auditable. If you are a researcher with a specific reason to review the firmware source, open an issue.
-
+## Dependencies
+ 
+| Library | License |
+|---|---|
+| [u8g2-hal-esp-idf](https://github.com/mkfrey/u8g2-hal-esp-idf) | See repo |
+| [ESP32-BLE-Keyboard](https://github.com/T-vK/ESP32-BLE-Keyboard) | See repo |
+| [u8g2](https://github.com/olikraus/u8g2) | BSD 2-Clause |
+| [esp-nimble-cpp](https://github.com/h2zero/esp-nimble-cpp) | Apache 2.0 |
+ 
 ---
 
 ## Attacks
@@ -148,6 +157,7 @@ Credentials can be changed from the Settings tab and are persisted to NVS flash 
 | Lead Developer | Sameer Al Sahab |
 | Original Codebase | [risinek](https://github.com/risinek/esp32-wifi-penetration-tool) |
 | Inspiration | [spacehuhn](https://github.com/SpacehuhnTech/esp8266_deauther) |
+| BLE Spam Code | [justcallmekoko and ckcr4lyf](https://github.com/ckcr4lyf/EvilAppleJuice-ESP32)
 
 ---
 

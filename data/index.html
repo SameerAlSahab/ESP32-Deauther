@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HydraESP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+
+<div id="disclaimer-overlay">
+  <div class="disclaimer-page">
+
+    <div class="disclaimer-header">
+      <img src="/icons/skull.png" class="disclaimer-header-icon" alt="">
+      <div>
+        <span class="disclaimer-logo-name">Hydra-ESP</span>
+        <span class="disclaimer-logo-ver">v1.1.3 — Authorised Use Only</span>
+      </div>
+    </div>
+
+    <div class="disclaimer-content">
+    <img src="/icons/warning.png" class="disclaimer-warn-tag" alt="">
+      <div class="disclaimer-warn-tag">Legal Notice &amp; Disclaimer</div>
+
+      <h1 class="disclaimer-title">Authorised Use Only</h1>
+      <p class="disclaimer-intro">
+        This firmware is an educational security research tool for the ESP32 microcontroller.
+        Read and understand the following before using any feature.
+      </p>
+
+      <div class="disclaimer-section">
+        <h2>You Must Have Permission</h2>
+        <p>You may only use this tool on networks and devices you own or have received
+           <strong>explicit, written authorisation</strong> to audit. Testing networks without
+           permission is illegal in most countries, including under the Computer Fraud and Abuse
+           Act (CFAA, US), the Computer Misuse Act (UK), the IT Act (India), and equivalent
+           legislation worldwide.</p>
+      </div>
+
+      <div class="disclaimer-section">
+        <h2>What This Tool Can Do</h2>
+        <p>Hydra-ESP can perform deauthentication attacks, handshake capture, PMKID capture,
+           Evil Twin attacks, beacon spam, BLE advertising, and rogue AP cloning. All of these
+           techniques can disrupt real wireless networks and constitute criminal offences if used
+           without authorisation.</p>
+      </div>
+
+      <div class="disclaimer-section">
+        <h2>Responsible Use</h2>
+        <ul>
+          <li>Only test in isolated lab environments or on your own equipment.</li>
+          <li>Never target public, commercial, or residential networks.</li>
+          <li>Do not use captures (PCAP, HCCAPX, PMKID) to access accounts you do not own.</li>
+          <li>Store captured data securely and delete it when no longer needed.</li>
+          <li>Be aware that 802.11 deauthentication affects all nearby devices on the channel.</li>
+        </ul>
+      </div>
+
+      <div class="disclaimer-section">
+        <h2>Liability</h2>
+        <p>The authors and contributors of HydraESP accept <strong>no liability</strong>
+           for misuse. You, the operator, are solely responsible for any harm, legal consequence,
+           or damage arising from your use of this firmware.</p>
+      </div>
+
+      <div class="disclaimer-section">
+        <h2>Applicable Laws (Examples)</h2>
+        <p>Unauthorised network testing may violate: the Computer Fraud &amp; Abuse Act, the
+           Wiretap Act, ECPA (US) · Computer Misuse Act (UK) · IT Act 2000 (Bangladesh / India)
+           · GDPR and local data-protection laws · Telecommunications regulations in your
+           jurisdiction. <em>This list is not exhaustive.</em></p>
+      </div>
+
+      <div class="disclaimer-agree-bar">
+        <label class="disclaimer-check-label">
+          <input type="checkbox" id="disclaimer-check">
+          <span>I have read and understood the above. I confirm I have explicit written authorisation
+                to test the target network(s). I accept full responsibility for my actions.</span>
+        </label>
+        <button id="disclaimer-btn" onclick="dismissDisclaimer()" disabled>Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="dialog-overlay" class="hidden">
+  <div class="dialog-box">
+    <p id="dialog-msg"></p>
+    <button onclick="closeDialog()">Got it</button>
+  </div>
+</div>
+
+
+<header class="app-bar">
+  <div class="app-bar-inner">
+    <div class="brand">
+      <img src="/icons/logo.png" class="brand-icon" alt="">
+      <div>
+        <span class="brand-name">Hydra-ESP</span>
+      </div>
+    </div>
+    <button class="icon-btn theme-toggle" onclick="toggleTheme()" aria-label="Toggle light / dark mode">
+      <img src="/icons/light_mode.png" class="icon-img" alt="Theme toggle">
+    </button>
+  </div>
+</header>
+
+
+<nav class="bottom-nav">
+  <button class="nav-item active" data-tab="scan" onclick="switchTab('scan')">
+    <div class="nav-indicator">
+      <img src="/icons/analyze.png" class="nav-icon" alt="">
+    </div>
+    <span class="nav-label">Scan</span>
+  </button>
+  <button class="nav-item" data-tab="attack" onclick="switchTab('attack')">
+    <div class="nav-indicator">
+      <img src="/icons/skull.png" class="nav-icon" alt="">
+    </div>
+    <span class="nav-label">Attack</span>
+  </button>
+  <button class="nav-item" data-tab="settings" onclick="switchTab('settings')">
+    <div class="nav-indicator">
+      <img src="/icons/settings.png" class="nav-icon" alt="">
+    </div>
+    <span class="nav-label">Settings</span>
+  </button>
+  <button class="nav-item" data-tab="about" onclick="switchTab('about')">
+    <div class="nav-indicator">
+      <img src="/icons/flow.png" class="nav-icon" alt="">
+    </div>
+    <span class="nav-label">About</span>
+  </button>
+</nav>
+
+
+<main class="content">
+  <div id="errors" class="error-banner"></div>
+
+    <!-- Scan -->
+  <section id="tab-scan" class="tab-panel active">
+
+    <div class="info-box info-warn">
+      <div class="info-label">
+        <img src="/icons/tips.png" class="info-label-icon" alt="">
+        Authorised Use Only
+      </div>
+      Only test networks you own or have explicit written permission to audit.
+      Unauthorised use is a criminal offence in most jurisdictions.
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Nearby Wi-Fi Networks</h3>
+        <span id="selected-count-badge" class="badge">0 selected</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>SSID</th>
+                <th>BSSID</th>
+                <th>Signal</th>
+              </tr>
+            </thead>
+            <tbody id="ap-list">
+              <tr><td colspan="3" class="table-empty-msg">Scanning…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <button onclick="refreshAps()" class="btn-secondary">
+            <img src="/icons/refresh.png" class="btn-icon" alt="">
+            Refresh Scan
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 4px;">
+
+      <div class="info-box" style="margin:0; border-radius:var(--radius-lg);">
+        <div class="info-label">Twin Deauth</div>
+        Clones the target BSSID on the same channel. Bypasses MFP on modern devices.
+      </div>
+
+      <div class="info-box" style="margin:0; border-radius:var(--radius-lg);">
+        <div class="info-label">Packet Deauth</div>
+        Sends raw 802.11 deauth frames. Supports multi-target. Devices with 802.11w may resist.
+      </div>
+
+      <div class="info-box" style="margin:0; border-radius:var(--radius-lg);">
+        <div class="info-label">Handshake</div>
+        Captures WPA/WPA2 4-way handshake. Outputs <code>.pcap</code> &amp; <code>.hccapx</code>.
+      </div>
+
+      <div class="info-box" style="margin:0; border-radius:var(--radius-lg);">
+        <div class="info-label">PMKID</div>
+        Clientless — captures from first EAPOL-Key frame. Works on most WPA2 APs.
+      </div>
+
+      <div class="info-box" style="margin:0; border-radius:var(--radius-lg);">
+        <div class="info-label">Beacon Spam</div>
+        Floods airspace with fake beacons, polluting Wi-Fi scan lists on all nearby devices.
+      </div>
+
+      <div class="info-box" style="margin:0; border-radius:var(--radius-lg);">
+        <div class="info-label">Evil Twin</div>
+        Clones target AP and execute deauth. Fake Captive portal harvests the network password.
+      </div>
+
+      <div class="info-box" style="margin:0; grid-column:1/-1; border-radius:var(--radius-lg);">
+        <div class="info-label">Ghost Mode (Probe Spam)</div>
+        Exploits persistent device probing for saved networks. Clones those SSIDs so devices
+        attempt to associate with the ESP32 instead of the original AP.
+      </div>
+
+    </div>
+
+  </section>
+
+  <section id="tab-attack" class="tab-panel">
+
+
+    <div id="running-section" style="display:none;">
+      <div class="card">
+        <div class="running-card">
+
+
+          <div id="beacon-timer-wrap" style="display:none;">
+            <div class="circular-timer-container">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831
+                         a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="circle" id="timer-path" stroke-dasharray="0, 100"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831
+                         a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              </svg>
+              <div class="timer-text" id="timer-elapsed">0s</div>
+            </div>
+            <div class="running-of" id="timer-of"></div>
+          </div>
+
+
+          <div id="simple-running-wrap" style="display:none;">
+            <div class="simple-running-icon">
+              <img src="/icons/rocket.png" alt="Running">
+            </div>
+          </div>
+
+          <div class="running-label">Attack In Progress</div>
+          <div class="running-attack-info" id="running-attack-info"></div>
+          <div id="no-timeout-hint" class="no-timeout-hint" style="display:none;">
+            No timeout set — power cycle the ESP32 to stop the attack.
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- BT Payload options -->
+    <div id="bt-payload-controls" style="display:none; margin-top:12px; text-align:center;">
+      <div class="card">
+        <div class="card-body">
+          <div id="bt-status-container">
+            <span id="bt-connection-info">Checking Bluetooth status…</span>
+          </div>
+
+          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:14px;">
+            <button onclick="setBtPayloadAndRun(1)" class="bt-payload-btn">Write to Notepad</button>
+            <button onclick="setBtPayloadAndRun(2)" class="bt-payload-btn">Play Rick Roll (YouTube)</button>
+            <button onclick="setBtPayloadAndRun(3)" class="bt-payload-btn">Set Warning Wallpaper *</button>
+            <button onclick="setBtPayloadAndRun(4)" class="bt-payload-btn">Grab Wi-Fi Passwords **</button>
+            <button onclick="setBtPayloadAndRun(5)" class="bt-payload-btn">Hydra God Mode</button>
+          </div>
+
+          <div class="info-box info-warn" style="text-align:left; margin:0 0 12px;">
+            <div class="info-label">Notes</div>
+            * Wallpaper may update fully only after a restart. Device must be online to download.<br>
+            ** Requires a remote server or request-bin to receive the password list.<br>
+            Most payloads target Windows. Use nRF Connect app for Android pairing.
+          </div>
+
+          <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--md-outline-var);">
+            <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
+              <input type="checkbox" id="use-custom-url" onchange="toggleCustomUrl()"
+                     style="width:18px; height:18px; accent-color:var(--md-primary);">
+              <span style="font-size:0.85rem; color:var(--md-on-surface);">
+                Send to remote server (RequestBin, etc.)
+              </span>
+            </label>
+            <div id="custom-url-row" style="display:none;">
+              <input type="text" id="custom-url" placeholder="https://your.requestbin.com/…"
+                     style="margin-bottom:8px;">
+              <button class="btn-secondary" onclick="saveCustomUrl()">Save URL</button>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button onclick="runBtPayloadAgain()" class="btn-tonal">↺ Run Again</button>
+          </div>
+          <p style="font-size:0.72rem; color:var(--md-on-surface-var); margin-top:10px;">
+            Selecting a payload executes it immediately on the connected device and sets it for
+            future reconnects.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result card -->
+    <div id="result-section" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Attack Result</h3>
+          <img src="/icons/check.png"
+               style="width:20px; height:20px; filter:var(--icon-filter-active);" alt="">
+        </div>
+        <div class="card-body">
+          <span id="result-status" class="result-status"></span>
+          <div id="result-type" class="result-type-label"></div>
+          <div id="result-body"></div>
+          <div style="margin-top:20px;">
+            <button onclick="resetAttack()" class="btn-secondary">← New Attack</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="attack-config-section">
+
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Selected Targets</h3>
+          <span id="selected-count-badge-attack" class="badge">0 selected</span>
+        </div>
+        <div class="card-body">
+          <div id="selected-ap-chips" class="selected-ap-chips">
+            <span class="no-ap-hint">No AP selected — tap a row in the Scan tab</span>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Configure Attack</h3>
+        </div>
+        <div class="card-body">
+
+          <div class="form-row">
+            <label class="form-label">Attack Type</label>
+            <div class="attack-type-group">
+              <button type="button" class="type-btn" onclick="selectAttackType(3,this)">Deauth</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(1,this)">Handshake</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(2,this)">PMKID</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(4,this)">Beacon Spam</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(5,this)">Ghost Mode</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(6,this)">Devil Twin</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(7,this)">BLE Spam</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(8,this)">Super Clone</button>
+              <button type="button" class="type-btn" onclick="selectAttackType(9,this)">BT Payload</button>
+            </div>
+            <input type="hidden" id="attack_type" value="">
+          </div>
+
+          <div class="form-row" id="method-row">
+            <label class="form-label" for="attack_method">Attack Method</label>
+            <select id="attack_method" disabled onchange="enforceSelectionLimit()">
+              <option value="" selected disabled hidden>Select an attack type first</option>
+            </select>
+          </div>
+
+          <div id="beacon_config" style="display:none;" class="form-row">
+            <label class="form-label" for="beacon_count">Number of Fake Networks</label>
+            <input type="number" id="beacon_count" min="1" max="100" value="20"
+                   style="width:120px; min-width:120px;">
+          </div>
+
+          <div class="form-row" id="timeout-row">
+            <div class="timeout-row">
+              <div class="checkbox-row">
+                <input type="checkbox" id="timeout_enable" checked>
+                <label for="timeout_enable" class="timeout-label">Timeout (minutes)</label>
+              </div>
+              <input type="number" id="attack_timeout" min="1" max="255" value="1">
+            </div>
+            <p class="form-hint" id="no-timeout-note" style="display:none; margin-top:10px;">
+              <strong>Warning:</strong> Without a timeout, the ESP32 management AP will disconnect
+              during this attack. You must <strong>power cycle</strong> the device to stop it and
+              regain access.
+            </p>
+          </div>
+
+          <div style="margin-top:24px;">
+            <button type="button" onclick="runAttack()" class="btn-primary full-width">
+              <img src="/icons/rocket.png"
+                   style="width:18px; height:18px; filter:brightness(10);" alt="">
+              Launch Attack
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+
+  <!-- Settings -->
+  <section id="tab-settings" class="tab-panel">
+
+    <div class="info-box info-warn">
+      <div class="info-label">
+        <img src="/icons/tips.png" class="info-label-icon" alt="">
+        Management AP Settings
+      </div>
+      Change the ESP32's own Wi-Fi network name and password. The device will reboot after
+      saving — reconnect using the new credentials.
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Update Credentials</h3></div>
+      <div class="card-body">
+        <div class="form-row">
+          <label class="form-label" for="ap-ssid">New Network Name (SSID)</label>
+          <input type="text" id="ap-ssid" placeholder="Enter new SSID" autocomplete="off">
+        </div>
+        <div class="form-row" style="margin-top:16px;">
+          <label class="form-label" for="ap-pass">
+            New Password <span style="font-weight:400; text-transform:none; font-family:'Space Grotesk',sans-serif; letter-spacing:0;">(min 8 chars)</span>
+          </label>
+          <input type="password" id="ap-pass" placeholder="Enter new password" autocomplete="new-password">
+        </div>
+        <div style="margin-top:24px;">
+          <button onclick="saveSettings()" class="btn-primary full-width">
+            <img src="/icons/restart.png"
+                 style="width:18px; height:18px; filter:brightness(10);" alt="">
+            Save &amp; Restart
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- About -->
+  <section id="tab-about" class="tab-panel">
+
+    <div class="info-box info-warn">
+      <div class="info-label">
+        <img src="/icons/tips.png" class="info-label-icon" alt="">
+        Legal Notice
+      </div>
+      Hydra-ESP is an educational security research tool for the ESP32. It must only be used
+      on networks you own or have explicit written authorisation to audit. Misuse is solely the
+      responsibility of the user.
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Authors &amp; Credits</h3>
+        <img src="/icons/contribution.png"
+             style="width:20px; height:20px; filter:var(--icon-filter-active);" alt="">
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div class="credit-row">
+          <div class="credit-role">Lead Developer</div>
+          <div class="credit-name">Sameer Al Sahab</div>
+          <div class="credit-desc">CSE student at East West University, Bangladesh. Penetration
+            testing and cyber security. Multi-target DoS engine, UI, deauth detector, and
+            SPIFFS-based firmware integration.</div>
+        </div>
+        <div class="credit-row">
+          <div class="credit-role">Original Codebase</div>
+          <div class="credit-name">risinek</div>
+          <div class="credit-desc">Initial ESP32 Wi-Fi penetration tool implementation — the
+            foundation this firmware is built upon.</div>
+        </div>
+        <div class="credit-row" style="border-bottom:none;">
+          <div class="credit-role">Inspiration</div>
+          <div class="credit-name">spacehuhn</div>
+          <div class="credit-desc">Inspired by deauth attack and Wi-Fi testing concepts from
+            the ESP8266 Deauther project.</div>
+        </div>
+          <div class="credit-row" style="border-bottom:none;">
+          <div class="credit-role">Ideas and some codes</div>
+          <div class="credit-name">justcallmekoko and ckcr4lyf</div>
+          <div class="credit-desc">Inspired by the bluetooth spam attack from
+            the Maruder and EvilAppleJuice project.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Firmware Info</h3>
+        <img src="/icons/ip.png"
+             style="width:20px; height:20px; filter:var(--icon-filter-active);" alt="">
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="info-table">
+          <tbody>
+            <tr><td>Version</td>  <td><code>v1.1.3</code></td></tr>
+            <tr><td>SoC</td>      <td>ESP32 (Xtensa LX6)</td></tr>
+            <tr><td>Mgmt IP</td>  <td><code>192.168.4.1</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>

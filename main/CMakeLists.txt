@@ -1,0 +1,26 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "main/attack.c"
+        "wifi/attack_dos.c"
+        "wifi/attack_method.c"
+        "wifi/attack_handshake.c"
+        "wifi/attack_pmkid.c"
+        "wifi/attack_probe.c"
+        "wifi/attack_deauth_detector.c"
+        "wifi/attack_eviltwin.c"
+        "wifi/attack_beacon_spam.c"
+        "bt/bt_payload_attack.cpp"
+        "bt/attack_bt_spam.c"
+        "display/hydra_ssd1306_display.c"
+        "utils/management_helper.c"
+        "utils/wifi_pass_verifier.c"
+    INCLUDE_DIRS
+        "."
+        "bt"
+        "display"
+        "main"
+        "utils"
+        "wifi"
+        "../components"
+)

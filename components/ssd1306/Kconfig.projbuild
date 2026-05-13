@@ -1,0 +1,186 @@
+menu "SSD1306 Configuration"
+
+	config GPIO_RANGE_MAX
+		int
+		default 33 if IDF_TARGET_ESP32
+		default 46 if IDF_TARGET_ESP32S2
+		default 48 if IDF_TARGET_ESP32S3
+		default 18 if IDF_TARGET_ESP32C2
+		default 19 if IDF_TARGET_ESP32C3
+		default 30 if IDF_TARGET_ESP32C6
+		default 27 if IDF_TARGET_ESP32H2
+
+	choice INTERFACE
+		prompt "Interface"
+		default I2C_INTERFACE
+		help
+			Select Interface.
+		config I2C_INTERFACE
+			bool "I2C Interface"
+			help
+				I2C Interface.
+		config SPI_INTERFACE
+			bool "SPI Interface"
+			help
+				SPI Interface.
+	endchoice
+
+	choice PANEL
+		prompt "Panel Type"
+		default SSD1306_128x64
+		help
+			Select Panel Type.
+		config SSD1306_128x32
+			bool "128x32 Panel"
+			help
+				Panel is 128x32.
+		config SSD1306_128x64
+			bool "128x64 Panel"
+			help
+				Panel is 128x64.
+	endchoice
+
+	config OFFSETX
+		int "GRAM X OFFSET"
+		range 0 99
+		default 0
+		help
+			When your TFT have offset(X), set it.
+
+	config FLIP
+		bool "Flip upside down"
+		default false
+		help
+			Flip upside down.
+
+	config SCL_GPIO
+		depends on I2C_INTERFACE
+		int "SCL GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 22 if IDF_TARGET_ESP32
+		default  2 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  2 if IDF_TARGET_ESP32H2
+		default  6 # C3 and others
+		help
+			GPIO number (IOxx) to I2C SCL.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to I2C.
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	config SDA_GPIO
+		depends on I2C_INTERFACE
+		int "SDA GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 21 if IDF_TARGET_ESP32
+		default  1 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  1 if IDF_TARGET_ESP32H2
+		default  5 # C3 and others
+		help
+			GPIO number (IOxx) to I2C SDA.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to I2C.
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	config MOSI_GPIO
+		depends on SPI_INTERFACE
+		int "MOSI GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 23 if IDF_TARGET_ESP32
+		default 35 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  1 # C3 and others
+		help
+			GPIO number (IOxx) to SPI MOSI.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to MOSI.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config SCLK_GPIO
+		depends on SPI_INTERFACE
+		int "SCLK GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 18 if IDF_TARGET_ESP32
+		default 36 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  2 # C3 and others
+		help
+			GPIO number (IOxx) to SPI SCLK.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to SCLK.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config CS_GPIO
+		depends on SPI_INTERFACE
+		int "CS GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default  5 if IDF_TARGET_ESP32
+		default 34 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default 10 # C3 and others
+		help
+			GPIO number (IOxx) to SPI CS.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to CS.
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	config DC_GPIO
+		depends on SPI_INTERFACE
+		int "DC GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default  4 if IDF_TARGET_ESP32
+		default 37 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  3 # C3 and others
+		help
+			GPIO number (IOxx) to SPI DC.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to DC.
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	config RESET_GPIO
+		int "RESET GPIO number"
+		range -1 GPIO_RANGE_MAX
+		default 15 if IDF_TARGET_ESP32
+		default 38 if IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+		default  4 # C3 and others
+		help
+			GPIO number (IOxx) to RESET.
+			When it is -1, RESET isn't performed.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to RESET.
+			GPIOs 35-39 are input-only so cannot be used as outputs.
+
+	choice I2C_PORT
+		depends on I2C_INTERFACE
+		prompt "I2C port that controls this bus"
+		default I2C_PORT_0
+		help
+			Select I2C port that controls this bus.
+		config I2C_PORT_0
+			bool "I2C_PORT_0"
+			help
+				Use I2C_PORT_0.
+		config I2C_PORT_1
+			depends on IDF_TARGET_ARCH_XTENSA
+			bool "I2C_PORT_1"
+			help
+				Use I2C_PORT_1.
+	endchoice
+
+	config LEGACY_DRIVER
+		depends on I2C_INTERFACE
+		bool "Force legacy i2c driver"
+		default false
+		help
+			Force legacy i2c driver.
+
+	choice SPI_HOST
+		depends on SPI_INTERFACE
+		prompt "SPI peripheral that controls this bus"
+		default SPI2_HOST
+		help
+			Select SPI peripheral that controls this bus.
+		config SPI2_HOST
+			bool "SPI2_HOST"
+			help
+				Use SPI2_HOST. This is also called HSPI_HOST.
+		config SPI3_HOST
+			depends on IDF_TARGET_ARCH_XTENSA
+			bool "SPI3_HOST"
+			help
+				USE SPI3_HOST. This is also called VSPI_HOST
+	endchoice
+
+endmenu
+
